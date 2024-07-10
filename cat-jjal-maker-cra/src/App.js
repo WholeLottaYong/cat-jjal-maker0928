@@ -1,36 +1,10 @@
-<!DOCTYPE html>
-<html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>고양이 가라사대</title>
-  </head>
-  <style>
-    body {
-      text-align: center;
-    }
-    .main-card button {
-      position: relative;
-      left: -45px;
-      bottom: 15px;
-    }
-    .favorites {
-      list-style: none;
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-  </style>
-  <body>
-    <div id="app"></div>
+import logo from './logo.svg';
+import React from 'react';
+import './App.css';
+import Title from './components/Title'; // 컴포넌트 분리 맛보기
+// . 뜻 : 동일 폴더
 
-    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    <script type="text/babel">
-      const jsonLocalStorage = {
+const jsonLocalStorage = {
           setItem: (key, value) => {
             localStorage.setItem(key, JSON.stringify(value));
           },
@@ -47,9 +21,7 @@
             return `${OPEN_API_DOMAIN}/cat/${responseJson._id}/says/${text}`; // NOTE: API 스펙 변경으로 강의 영상과 다른 URL로 변경했습니다.
           };
 
-      const Title = (props) => {
-        return <h1>{props.children}</h1>
-      }
+      
 
       const Form = ({ updateMainCat }) => {
         const includesHangul = (text) => /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/i.test(text);
@@ -198,10 +170,4 @@
         )
       }
 
-      const 여기다가그려 = document.querySelector('#app');
-
-      ReactDOM.render(<App />, 여기다가그려);
-
-    </script>
-  </body>
-</html>
+export default App;
