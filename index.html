@@ -22,46 +22,149 @@
       flex-wrap: wrap;
       gap: 15px;
     }
-    .favorites img {
-      width: 150px;
-    }
   </style>
   <body>
-    <h1>1번째 고양이 가라사대</h1>
-    <form>
-      <input type="text" name="name" placeholder="영어 대사를 입력해주세요" />
-      <button type="submit">생성</button>
-    </form>
-    <div class="main-card">
-      <img
-        src="https://cataas.com/cat/HSENVDU4ZMqy7KQ0/says/react"
-        alt="고양이"
-        width="400"
-      />
-      <button>🤍</button>
-    </div>
-    <ul class="favorites">
-      <li>
-        <img
-          src="https://cataas.com/cat/HSENVDU4ZMqy7KQ0/says/react"
-          alt="고양이"
-        />
-      </li>
-      <li>
-        <img
-          src="https://cataas.com/cat/HSENVDU4ZMqy7KQ0/says/react"
-          alt="고양이"
-        />
-      </li>
-      <li>
-        <img
-          src="https://cataas.com/cat/HSENVDU4ZMqy7KQ0/says/react"
-          alt="고양이"
-        />
-      </li>
-    </ul>
-    <script>
-      console.log("야옹");
+    <div id="app"></div>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script type="text/babel">
+      const jsonLocalStorage = {
+          setItem: (key, value) => {
+            localStorage.setItem(key, JSON.stringify(value));
+          },
+          getItem: (key) => {
+            return JSON.parse(localStorage.getItem(key));
+          },
+        };
+
+      const Title = (props) => {
+        return <h1>{props.children}</h1>
+      }
+
+      const Form = ({ updateMainCat }) => {
+        const includesHangul = (text) => /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/i.test(text);
+        const [value, setValue] = React.useState('');
+        const [errorMessage, setErrorMessage] = React.useState('');
+
+        function handleInputChange(e) {
+          const userValue = e.target.value;
+
+          setErrorMessage(""); // 초기값을 이걸로 시작해서, else구문 스킵하기
+          if (includesHangul(userValue)) {
+            setErrorMessage("한글은 입력할 수 없습니다.");
+          }
+          setValue(userValue.toUpperCase());
+          // 이벤트의 target의 밸류값이 찍힘
+        }
+
+        function handleFormSubmit(e) {
+          e.preventDefault();
+          setErrorMessage(""); // 초기값을 이걸로 시작해서, else구문 스킵하기
+
+          if (value == "") {
+            setErrorMessage("빈 값으로 만들 수 없습니다.");
+            return; // 에러가 떴는데 업데이트를 하면 안됨. 함수가 여기서 끝나야만 하기에 추가
+          }
+          updateMainCat();
+        }
+
+        // form 태그의 onSubmit 인자에 event가 처음으로 들어오고 그 event를 preventDefault()가 1초 지난후 사라지는 것을 막아줌
+        return (
+          <form onSubmit={handleFormSubmit}>
+            <input
+              type="text"
+              name="name"
+              placeholder="영어 대사를 입력해주세요" 
+              value={value} // 입력 창에 해당 프로퍼티가 계속 박혀있음
+              onChange={handleInputChange} // input에 값이 바뀔때마다 함수를 부르는 내장 API
+              />
+            <button type="submit">생성</button>
+            <p style={{color: "red"}}>{errorMessage}</p> //
+          </form>
+        );
+      };
+
+      function CatItem(props) {
+        console.log(props);
+          return (
+            <li>
+              {props.title}
+              <img src={props.img} style={{width: "150px"}}/> 
+            </li>
+          );
+        }
+
+     
+
+      function Favorites({favorites}) {
+        return (
+          <ul className="favorites">
+            {favorites.map(cat => ( // map은 배열을 순회하는 api
+              <CatItem img={cat} key= {cat}/> // key값이 있어야 배열값을 잘 구분해서 화면에 잘 나타낼 수 있음
+            ))}
+          </ul>
+        );
+      }
+
+      const Maincard = ({ img, onHeartClick }) => {
+        return (
+          <div className="main-card">
+            <img
+              src= {img} alt="고양이" width="400" />
+            <button 
+              onClick={onHeartClick}
+            >🤍</button>
+          </div>
+        );
+      }
+ 
+      // 상태 끌어올리기 - 부모 컴포넌트에서 저으이하고 자식 컴포넌트에서 사용
+      const App = () => {
+        const CAT1 = "https://cataas.com/cat/HSENVDU4ZMqy7KQ0/says/react";
+        const CAT2 = "https://cataas.com/cat/BxqL2EjFmtxDkAm2/says/inflearn";
+        const CAT3 = "https://cataas.com/cat/18MD6byVC1yKGpXp/says/JavaScript";
+
+        const [counter, setCounter] = React.useState(
+          jsonLocalStorage.getItem('counter') // localStorage의 value는 string 타입으로 저장되므로 우리가 쓸땐 필요시 타입 변환이 필요
+        ); // 상태의 초기값을 설정하는 함수
+        // const counter = counterState[0];
+        // const setCounter = counterState[1];
+        // console.log("카운터", counter);
+        const [mainCat, setMainCat] = React.useState(CAT1);
+        const [favorites, setFavorites] = React.useState(
+          jsonLocalStorage.getItem('favorites') || [] // null exception 처리 == null값이면 빈 배열로 처리해줘라
+        );
+
+        function updateMainCat() {
+          setMainCat(CAT2);
+          const nextCounter = counter + 1;
+          setCounter(nextCounter);
+          jsonLocalStorage.setItem("counter", nextCounter);
+        }
+
+        function handleHeartClick() {
+          const nextFavorites = [...favorites, mainCat];
+          setFavorites(nextFavorites); // JS 문법 : ...변수명 - 변수 안의 value값들을 자동 나열
+          // == setFavorites([CAT1, CAT2, CAT3]);
+          jsonLocalStorage.setItem('favorites', nextFavorites);
+        }
+
+        return (
+          <div>
+            <Title>{counter}번째 고양이 가라사대</Title>
+            <Form updateMainCat={updateMainCat}/>
+            <Maincard img={mainCat} onHeartClick={handleHeartClick}/>
+            <Favorites favorites={favorites}/>
+          </div>
+        )
+      }
+
+      const 여기다가그려 = document.querySelector('#app');
+
+      ReactDOM.render(<App />, 여기다가그려);
+
     </script>
   </body>
 </html>
